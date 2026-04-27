@@ -15,7 +15,7 @@ label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:.4re
 select,input{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:white;color:#1a1a2e}
 select:focus,input:focus{outline:none;border-color:#6366f1}
 .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
-.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center;transition:all .2s}
+.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center}
 .type-btn.active{border-color:#6366f1;background:#eef2ff;color:#4338ca}
 .type-btn.cp.active{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
 .type-btn.hrc.active{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
@@ -32,6 +32,9 @@ select:focus,input:focus{outline:none;border-color:#6366f1}
 .success p{font-size:14px;color:#666}
 .hidden{display:none}
 .date-info{background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 14px;font-size:13px;color:#4338ca;margin-bottom:1rem;text-align:center;font-weight:600}
+.loading{display:none;text-align:center;padding:2rem}
+.spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top:4px solid #6366f1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -106,23 +109,38 @@ select:focus,input:focus{outline:none;border-color:#6366f1}
       <div class="field">
         <label>Nombre d'heures HRC à poser</label>
         <div class="hrc-row">
-          <input type="number" id="hrc-val" min="0.5" max="35" step="0.5" value="7" placeholder="ex: 3.5"/>
+          <input type="number" id="hrc-val" min="0.5" max="35" step="0.5" value="7"/>
           <span>heures</span>
         </div>
       </div>
     </div>
     <button class="btn-submit" id="btn-envoyer" onclick="envoyer()">Valider mon pointage</button>
   </div>
+
+  <div class="loading" id="loading-view">
+    <div class="spinner"></div>
+    <p style="color:#666;font-size:14px">Envoi en cours...</p>
+  </div>
+
   <div class="success" id="success-view">
     <div class="icon">✅</div>
     <h2>Pointage enregistré !</h2>
     <p id="success-msg"></p>
     <br>
-    <button class="btn-submit" onclick="reset()" style="background:#16a34a">Nouveau pointage</button>
+    <button class="btn-submit" onclick="resetForm()" style="background:#16a34a">Nouveau pointage</button>
+  </div>
+
+  <div class="success" id="error-view" style="display:none">
+    <div class="icon">❌</div>
+    <h2 style="color:#dc2626">Erreur d'envoi</h2>
+    <p>Vérifie ta connexion et réessaie.</p>
+    <br>
+    <button class="btn-submit" onclick="resetForm()" style="background:#dc2626">Réessayer</button>
   </div>
 </div>
 
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
 let typeActuel='normal';
 let cpType='1';
 
@@ -133,7 +151,7 @@ document.getElementById('date-display').textContent=jours[d.getDay()]+' '+d.getD
 
 function setType(type,el){
   typeActuel=type;
-  document.querySelectorAll('.type-btn').forEach(b=>{if(['normal','CP','HRC','SS'].includes(b.textContent.trim())||b.onclick)b.classList.remove('active')});
+  document.querySelectorAll('.type-grid:first-of-type .type-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('heures-section').classList.toggle('hidden',type!=='normal');
   document.getElementById('cp-section').classList.toggle('hidden',type!=='CP');
@@ -143,41 +161,3 @@ function setCPType(val,el){
   cpType=val;
   document.querySelectorAll('#cp-section .type-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-}
-function envoyer(){
-  const nom=document.getElementById('nom').value;
-  if(!nom){alert('Sélectionne ton nom !');return;}
-  if(typeActuel==='normal'){
-    const debut=document.getElementById('debut').value;
-    const fin=document.getElementById('fin').value;
-    if(!debut||!fin){alert('Remplis les heures de début et de fin !');return;}
-  }
-  const now=new Date();
-  const dateStr=(now.getDate()+'').padStart(2,'0')+'/'+(( now.getMonth()+1)+'').padStart(2,'0')+'/'+now.getFullYear();
-  let msg='';
-  if(typeActuel==='normal'){
-    const debut=document.getElementById('debut').value;
-    const fin=document.getElementById('fin').value;
-    const pause=document.getElementById('pause').value;
-    msg=nom+' | '+dateStr+' | '+debut+' → '+fin+' | Pause: '+pause+'h | Normal';
-  } else if(typeActuel==='CP'){
-    msg=nom+' | '+dateStr+' | CP | '+(cpType==='0.5'?'Demi-journée':'Journée entière');
-  } else if(typeActuel==='HRC'){
-    const h=document.getElementById('hrc-val').value;
-    msg=nom+' | '+dateStr+' | HRC | '+h+'h';
-  } else {
-    msg=nom+' | '+dateStr+' | Sans solde';
-  }
-  document.getElementById('success-msg').textContent=msg;
-  document.getElementById('form-view').style.display='none';
-  document.getElementById('success-view').style.display='block';
-}
-function reset(){
-  document.getElementById('form-view').style.display='block';
-  document.getElementById('success-view').style.display='none';
-  document.getElementById('nom').value='';
-  setType('normal',document.querySelector('.type-btn'));
-}
-</script>
-</body>
-</html>
