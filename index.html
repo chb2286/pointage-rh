@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointage</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:420px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+h1{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;text-align:center}
+.subtitle{font-size:13px;color:#888;text-align:center;margin-bottom:1.5rem}
+.field{margin-bottom:1rem}
+label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:.4rem}
+select,input{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:white;color:#1a1a2e}
+select:focus,input:focus{outline:none;border-color:#6366f1}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center;transition:all .2s}
+.type-btn.active{border-color:#6366f1;background:#eef2ff;color:#4338ca}
+.type-btn.cp.active{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
+.type-btn.hrc.active{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
+.type-btn.ss.active{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.hrc-row{display:flex;align-items:center;gap:8px}
+.hrc-row input{flex:1}
+.hrc-row span{font-size:14px;color:#666;white-space:nowrap}
+.btn-submit{width:100%;padding:14px;background:#6366f1;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.btn-submit:hover{background:#4f46e5}
+.btn-submit:disabled{background:#c7c7c7;cursor:not-allowed}
+.success{display:none;text-align:center;padding:2rem}
+.success .icon{font-size:60px;margin-bottom:1rem}
+.success h2{font-size:20px;font-weight:700;color:#16a34a;margin-bottom:.5rem}
+.success p{font-size:14px;color:#666}
+.hidden{display:none}
+.date-info{background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 14px;font-size:13px;color:#4338ca;margin-bottom:1rem;text-align:center;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="form-view">
+    <h1>Pointage des heures</h1>
+    <p class="subtitle">Remplis le formulaire ci-dessous</p>
+    <div class="date-info" id="date-display"></div>
+    <div class="field">
+      <label>Ton nom</label>
+      <select id="nom">
+        <option value="">Sélectionne ton nom...</option>
+        <option>AMAT Aurélie</option>
+        <option>BARABE Chrystel</option>
+        <option>BIARD Sébastien</option>
+        <option>BOULAY Julien</option>
+        <option>BROSSE Christopher</option>
+        <option>BUFFETEAU Jérôme</option>
+        <option>CHAMARD Alexandra</option>
+        <option>DONNAT Patrick</option>
+        <option>RAIMOND Séverine</option>
+        <option>MARTIN Sophie</option>
+        <option>DUPONT Jean</option>
+        <option>LEROY Marc</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Type de journée</label>
+      <div class="type-grid">
+        <div class="type-btn active" onclick="setType('normal',this)">Journée normale</div>
+        <div class="type-btn cp" onclick="setType('CP',this)">Congés payés</div>
+        <div class="type-btn hrc" onclick="setType('HRC',this)">Poser HRC</div>
+        <div class="type-btn ss" onclick="setType('SS',this)">Absence</div>
+      </div>
+    </div>
+    <div id="heures-section">
+      <div class="field">
+        <label>Heure de début</label>
+        <select id="debut">
+          <option value="">Sélectionne...</option>
+          <option>07:00</option><option>07:30</option><option>08:00</option>
+          <option>08:15</option><option selected>08:30</option><option>09:00</option>
+          <option>09:30</option><option>10:00</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Heure de fin</label>
+        <select id="fin">
+          <option value="">Sélectionne...</option>
+          <option>12:30</option><option>13:00</option><option>14:00</option>
+          <option>15:00</option><option>16:00</option><option selected>16:30</option>
+          <option>17:00</option><option>17:30</option><option>18:00</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Temps de pause</label>
+        <select id="pause">
+          <option value="0">Pas de pause</option>
+          <option value="0.5">30 minutes</option>
+          <option value="1" selected>1 heure</option>
+          <option value="1.5">1h30</option>
+        </select>
+      </div>
+    </div>
+    <div id="cp-section" class="hidden">
+      <div class="type-grid" style="margin-bottom:0">
+        <div class="type-btn cp active" onclick="setCPType('1',this)">Journée entière</div>
+        <div class="type-btn cp" onclick="setCPType('0.5',this)">Demi-journée</div>
+      </div>
+    </div>
+    <div id="hrc-section" class="hidden">
+      <div class="field">
+        <label>Nombre d'heures HRC à poser</label>
+        <div class="hrc-row">
+          <input type="number" id="hrc-val" min="0.5" max="35" step="0.5" value="7" placeholder="ex: 3.5"/>
+          <span>heures</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-submit" id="btn-envoyer" onclick="envoyer()">Valider mon pointage</button>
+  </div>
+  <div class="success" id="success-view">
+    <div class="icon">✅</div>
+    <h2>Pointage enregistré !</h2>
+    <p id="success-msg"></p>
+    <br>
+    <button class="btn-submit" onclick="reset()" style="background:#16a34a">Nouveau pointage</button>
+  </div>
+</div>
+
+<script>
+let typeActuel='normal';
+let cpType='1';
+
+const jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const mois=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const d=new Date();
+document.getElementById('date-display').textContent=jours[d.getDay()]+' '+d.getDate()+' '+mois[d.getMonth()]+' '+d.getFullYear();
+
+function setType(type,el){
+  typeActuel=type;
+  document.querySelectorAll('.type-btn').forEach(b=>{if(['normal','CP','HRC','SS'].includes(b.textContent.trim())||b.onclick)b.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('heures-section').classList.toggle('hidden',type!=='normal');
+  document.getElementById('cp-section').classList.toggle('hidden',type!=='CP');
+  document.getElementById('hrc-section').classList.toggle('hidden',type!=='HRC');
+}
+function setCPType(val,el){
+  cpType=val;
+  document.querySelectorAll('#cp-section .type-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function envoyer(){
+  const nom=document.getElementById('nom').value;
+  if(!nom){alert('Sélectionne ton nom !');return;}
+  if(typeActuel==='normal'){
+    const debut=document.getElementById('debut').value;
+    const fin=document.getElementById('fin').value;
+    if(!debut||!fin){alert('Remplis les heures de début et de fin !');return;}
+  }
+  const now=new Date();
+  const dateStr=(now.getDate()+'').padStart(2,'0')+'/'+(( now.getMonth()+1)+'').padStart(2,'0')+'/'+now.getFullYear();
+  let msg='';
+  if(typeActuel==='normal'){
+    const debut=document.getElementById('debut').value;
+    const fin=document.getElementById('fin').value;
+    const pause=document.getElementById('pause').value;
+    msg=nom+' | '+dateStr+' | '+debut+' → '+fin+' | Pause: '+pause+'h | Normal';
+  } else if(typeActuel==='CP'){
+    msg=nom+' | '+dateStr+' | CP | '+(cpType==='0.5'?'Demi-journée':'Journée entière');
+  } else if(typeActuel==='HRC'){
+    const h=document.getElementById('hrc-val').value;
+    msg=nom+' | '+dateStr+' | HRC | '+h+'h';
+  } else {
+    msg=nom+' | '+dateStr+' | Sans solde';
+  }
+  document.getElementById('success-msg').textContent=msg;
+  document.getElementById('form-view').style.display='none';
+  document.getElementById('success-view').style.display='block';
+}
+function reset(){
+  document.getElementById('form-view').style.display='block';
+  document.getElementById('success-view').style.display='none';
+  document.getElementById('nom').value='';
+  setType('normal',document.querySelector('.type-btn'));
+}
+</script>
+</body>
+</html>
