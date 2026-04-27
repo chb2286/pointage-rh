@@ -1,41 +1,228 @@
-function doGet(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var callback = e.parameter.callback;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointage</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:420px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+h1{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;text-align:center}
+.subtitle{font-size:13px;color:#888;text-align:center;margin-bottom:1.5rem}
+.field{margin-bottom:1rem}
+label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:.4rem}
+select,input{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:white;color:#1a1a2e}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center;user-select:none}
+.type-btn.active{border-color:#6366f1;background:#eef2ff;color:#4338ca}
+.type-btn.active-cp{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
+.type-btn.active-hrc{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
+.type-btn.active-ss{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.hrc-row{display:flex;align-items:center;gap:8px}
+.hrc-row input{flex:1}
+.btn-submit{width:100%;padding:14px;background:#6366f1;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:.5rem}
+.btn-submit:hover{background:#4f46e5}
+.hidden{display:none}
+.date-info{background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 14px;font-size:13px;color:#4338ca;margin-bottom:1rem;text-align:center;font-weight:600}
+.spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top:4px solid #6366f1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:2rem}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="form-view">
+    <h1>Pointage des heures</h1>
+    <p class="subtitle">Remplis le formulaire ci-dessous</p>
+    <div class="date-info" id="date-display"></div>
+    <div class="field">
+      <label>Ton nom</label>
+      <select id="nom">
+        <option value="">Chargement...</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Type de journée</label>
+      <div class="type-grid">
+        <div class="type-btn active" id="btn-normal">Journée normale</div>
+        <div class="type-btn" id="btn-cp">Congés payés</div>
+        <div class="type-btn" id="btn-hrc">Poser HRC</div>
+        <div class="type-btn" id="btn-ss">Absence</div>
+      </div>
+    </div>
+    <div id="heures-section">
+      <div class="field">
+        <label>Heure de début</label>
+        <select id="debut">
+          <option value="">Sélectionne...</option>
+          <option>07:00</option><option>07:30</option><option>08:00</option>
+          <option>08:15</option><option selected>08:30</option><option>09:00</option>
+          <option>09:30</option><option>10:00</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Heure de fin</label>
+        <select id="fin">
+          <option value="">Sélectionne...</option>
+          <option>12:30</option><option>13:00</option><option>14:00</option>
+          <option>15:00</option><option>16:00</option><option selected>16:30</option>
+          <option>17:00</option><option>17:30</option><option>18:00</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Temps de pause</label>
+        <select id="pause">
+          <option value="0">Pas de pause</option>
+          <option value="0.5">30 minutes</option>
+          <option value="1" selected>1 heure</option>
+          <option value="1.5">1h30</option>
+        </select>
+      </div>
+    </div>
+    <div id="cp-section" class="hidden">
+      <div class="field">
+        <label>Durée</label>
+        <div class="type-grid">
+          <div class="type-btn active-cp active" id="btn-cp-full">Journée entière (7h)</div>
+          <div class="type-btn" id="btn-cp-half">Demi-journée (3h30)</div>
+        </div>
+      </div>
+    </div>
+    <div id="hrc-section" class="hidden">
+      <div class="field">
+        <label>Nombre d'heures HRC à poser</label>
+        <div class="hrc-row">
+          <input type="number" id="hrc-val" min="0.5" max="35" step="0.5" value="7"/>
+          <span>heures</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-submit" id="btn-envoyer">Valider mon pointage</button>
+  </div>
+  <div id="loading-view" class="hidden center">
+    <div class="spinner"></div>
+    <p style="color:#666;font-size:14px">Envoi en cours...</p>
+  </div>
+  <div id="success-view" class="hidden center">
+    <div style="font-size:60px;margin-bottom:1rem">✅</div>
+    <h2 style="color:#16a34a;margin-bottom:.5rem">Pointage enregistré !</h2>
+    <p id="success-msg" style="font-size:13px;color:#666"></p>
+    <br>
+    <button class="btn-submit" id="btn-nouveau" style="background:#16a34a">Nouveau pointage</button>
+  </div>
+  <div id="error-view" class="hidden center">
+    <div style="font-size:60px;margin-bottom:1rem">❌</div>
+    <h2 style="color:#dc2626;margin-bottom:.5rem">Erreur d'envoi</h2>
+    <p style="font-size:13px;color:#666">Vérifie ta connexion et réessaie.</p>
+    <br>
+    <button class="btn-submit" id="btn-retry" style="background:#dc2626">Réessayer</button>
+  </div>
+</div>
+<script>
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
+var typeActuel = "normal";
+var cpType = "1";
 
-    if(e.parameter.action === "getSalaries") {
-      var sheet = ss.getSheetByName("Salaries");
-      var data = sheet.getRange("A2:A"+sheet.getLastRow()).getValues();
-      var salaries = [];
-      for(var i=0; i<data.length; i++){
-        if(data[i][0] !== "") salaries.push(data[i][0]);
-      }
-      salaries.sort();
-      var json = JSON.stringify(salaries);
-      if(callback) return ContentService.createTextOutput(callback+"("+json+")").setMimeType(ContentService.MimeType.JAVASCRIPT);
-      return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
-    }
+var jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+var mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+var d = new Date();
+document.getElementById("date-display").textContent = jours[d.getDay()]+" "+d.getDate()+" "+mois[d.getMonth()]+" "+d.getFullYear();
 
-    var sheet = ss.getSheetByName("Pointages");
-    var p = e.parameter;
-    var debut = p.debut||"";
-    var fin = p.fin||"";
-    var pause = p.pause||"0";
-    var type = p.type||"";
-    var cpVal = p.cp==="1"?"7":p.cp==="0.5"?"3.5":"";
-    var hrcVal = p.hrc||"";
-    var ssVal = p.ss?"7":"";
-    var hPlus="";var hMoins="";
-    if(type==="normal"&&debut!==""&&fin!==""){
-      var d=debut.split(":");var f=fin.split(":");
-      var travaille=(parseFloat(f[0])+parseFloat(f[1])/60)-(parseFloat(d[0])+parseFloat(d[1])/60)-parseFloat(pause);
-      var ecart=Math.round((travaille-7)*100)/100;
-      if(ecart>0)hPlus=ecart;
-      else if(ecart<0)hMoins=Math.abs(ecart);
+function chargerSalaries() {
+  window.callbackSalaries = function(data) {
+    var sel = document.getElementById("nom");
+    sel.innerHTML = '<option value="">Sélectionne ton nom...</option>';
+    for(var i=0; i<data.length; i++){
+      var opt = document.createElement("option");
+      opt.value = data[i];
+      opt.textContent = data[i];
+      sel.appendChild(opt);
     }
-    sheet.appendRow([p.date||"",p.salarie||"",debut,fin,pause,type,cpVal,hrcVal,ssVal,new Date(),hPlus,hMoins]);
-    return ContentService.createTextOutput("OK").setMimeType(ContentService.MimeType.TEXT);
-  } catch(err) {
-    return ContentService.createTextOutput("ERREUR: "+err.toString()).setMimeType(ContentService.MimeType.TEXT);
+  };
+  var script = document.createElement("script");
+  script.src = SCRIPT_URL + "?action=getSalaries&callback=callbackSalaries&_=" + new Date().getTime();
+  document.body.appendChild(script);
+}
+chargerSalaries();
+
+function showView(id) {
+  var views = ["form-view","loading-view","success-view","error-view"];
+  for(var i=0;i<views.length;i++){
+    document.getElementById(views[i]).style.display = views[i]===id?"block":"none";
   }
 }
+showView("form-view");
+
+function setType(type) {
+  typeActuel = type;
+  document.getElementById("btn-normal").className = "type-btn"+(type==="normal"?" active":"");
+  document.getElementById("btn-cp").className = "type-btn"+(type==="CP"?" active-cp":"");
+  document.getElementById("btn-hrc").className = "type-btn"+(type==="HRC"?" active-hrc":"");
+  document.getElementById("btn-ss").className = "type-btn"+(type==="SS"?" active-ss":"");
+  document.getElementById("heures-section").style.display = type==="normal"?"block":"none";
+  document.getElementById("cp-section").style.display = type==="CP"?"block":"none";
+  document.getElementById("hrc-section").style.display = type==="HRC"?"block":"none";
+}
+
+function setCPType(val) {
+  cpType = val;
+  document.getElementById("btn-cp-full").className = "type-btn"+(val==="1"?" active-cp":"");
+  document.getElementById("btn-cp-half").className = "type-btn"+(val==="0.5"?" active-cp":"");
+}
+
+document.getElementById("btn-normal").onclick = function(){ setType("normal"); };
+document.getElementById("btn-cp").onclick = function(){ setType("CP"); };
+document.getElementById("btn-hrc").onclick = function(){ setType("HRC"); };
+document.getElementById("btn-ss").onclick = function(){ setType("SS"); };
+document.getElementById("btn-cp-full").onclick = function(){ setCPType("1"); };
+document.getElementById("btn-cp-half").onclick = function(){ setCPType("0.5"); };
+
+document.getElementById("btn-envoyer").onclick = function() {
+  var nom = document.getElementById("nom").value;
+  if(!nom){ alert("Sélectionne ton nom !"); return; }
+  if(typeActuel==="normal"){
+    var debut = document.getElementById("debut").value;
+    var fin = document.getElementById("fin").value;
+    if(!debut||!fin){ alert("Remplis les heures !"); return; }
+  }
+  var now = new Date();
+  var dd = ("0"+now.getDate()).slice(-2);
+  var mm = ("0"+(now.getMonth()+1)).slice(-2);
+  var dateStr = dd+"/"+mm+"/"+now.getFullYear();
+  var params = "date="+encodeURIComponent(dateStr);
+  params += "&salarie="+encodeURIComponent(nom);
+  params += "&type="+encodeURIComponent(typeActuel);
+  if(typeActuel==="normal"){
+    params += "&debut="+encodeURIComponent(document.getElementById("debut").value);
+    params += "&fin="+encodeURIComponent(document.getElementById("fin").value);
+    params += "&pause="+encodeURIComponent(document.getElementById("pause").value);
+    params += "&cp=&hrc=&ss=";
+  } else if(typeActuel==="CP"){
+    params += "&debut=&fin=&pause=&cp="+encodeURIComponent(cpType)+"&hrc=&ss=";
+  } else if(typeActuel==="HRC"){
+    params += "&debut=&fin=&pause=&cp=&hrc="+encodeURIComponent(document.getElementById("hrc-val").value)+"&ss=";
+  } else {
+    params += "&debut=&fin=&pause=&cp=&hrc=&ss=1";
+  }
+  showView("loading-view");
+  var img = new Image();
+  img.onload = img.onerror = function() {
+    document.getElementById("success-msg").textContent = nom+" — "+dateStr+" — "+typeActuel;
+    showView("success-view");
+  };
+  img.src = SCRIPT_URL+"?"+params;
+};
+
+document.getElementById("btn-nouveau").onclick = function() {
+  document.getElementById("nom").value = "";
+  setType("normal");
+  chargerSalaries();
+  showView("form-view");
+};
+document.getElementById("btn-retry").onclick = function() {
+  showView("form-view");
+};
+</script>
+</body>
+</html>
