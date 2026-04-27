@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointage RH — Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f4f8;color:#1a1a2e}
+.header{background:#1a1a2e;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:20px;font-weight:700}
+.header .date{font-size:13px;opacity:.7}
+.tabs{display:flex;gap:0;background:white;border-bottom:2px solid #e0e0e0;padding:0 2rem}
+.tab{padding:12px 20px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;font-weight:500}
+.tab.active{color:#1a1a2e;border-bottom:3px solid #1a1a2e}
+.tab:hover{color:#1a1a2e}
+.content{padding:1.5rem 2rem}
+.section{display:none}.section.active{display:block}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.metric{background:white;border-radius:10px;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.metric .label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.metric .value{font-size:24px;font-weight:700}
+.metric .sub{font-size:11px;color:#aaa;margin-top:2px}
+.card{background:white;border-radius:10px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.08);margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:700;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+table{width:100%;font-size:12px;border-collapse:collapse}
+th{text-align:left;padding:8px 10px;color:#888;font-weight:500;border-bottom:1px solid #f0f0f0;font-size:11px;text-transform:uppercase}
+td{padding:8px 10px;border-bottom:1px solid #f9f9f9;color:#1a1a2e}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600}
+.b-normal{background:#f0f0f0;color:#666}
+.b-cp{background:#dbeafe;color:#1d4ed8}
+.b-hrc{background:#ede9fe;color:#6d28d9}
+.b-ss{background:#fee2e2;color:#dc2626}
+.b-plus{background:#dcfce7;color:#16a34a}
+.b-moins{background:#fee2e2;color:#dc2626}
+.btn{padding:6px 14px;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;background:white;color:#1a1a2e;font-weight:500}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#1a1a2e;color:white;border-color:#1a1a2e}
+.btn-primary:hover{background:#2d2d4e}
+.btn-danger{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.alert-warn{background:#fef3c7;color:#92400e;border-left:3px solid #f59e0b}
+.alert-err{background:#fee2e2;color:#991b1b;border-left:3px solid #ef4444}
+.alert-info{background:#ede9fe;color:#4c1d95;border-left:3px solid #8b5cf6}
+.pbar{height:6px;border-radius:3px;background:#f0f0f0;margin-top:6px}
+.pfill{height:100%;border-radius:3px}
+.loading{text-align:center;padding:3rem;color:#aaa;font-size:14px}
+.empty{text-align:center;padding:2rem;color:#aaa;font-size:13px}
+.sal-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.sal-row:last-child{border-bottom:none}
+.sal-name{font-weight:600;font-size:13px}
+.sal-badges{display:flex;gap:6px;flex-wrap:wrap}
+.saisie-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-field label{font-size:12px;color:#666;font-weight:500}
+.form-field select,.form-field input{padding:8px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;background:white}
+.form-full{grid-column:1/-1}
+.refresh-btn{background:#f0f4f8;border:1px solid #e0e0e0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;color:#666}
+.refresh-btn:hover{background:#e0e8f0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📊 Tableau de bord RH</h1>
+    <div class="date" id="header-date"></div>
+  </div>
+  <button class="refresh-btn" onclick="chargerDonnees()">🔄 Actualiser</button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('aujourd-hui',this)">Aujourd'hui</button>
+  <button class="tab" onclick="showTab('alertes',this)">Alertes <span id="badge-alertes"></span></button>
+  <button class="tab" onclick="showTab('recap',this)">Récap mensuel</button>
+  <button class="tab" onclick="showTab('historique',this)">Historique</button>
+  <button class="tab" onclick="showTab('saisie',this)">Saisie manuelle</button>
+</div>
+
+<div class="content">
+
+  <!-- AUJOURD'HUI -->
+  <div id="aujourd-hui" class="section active">
+    <div class="grid4">
+      <div class="metric"><div class="label">Présents aujourd'hui</div><div class="value" id="m-presents" style="color:#16a34a">—</div><div class="sub" id="m-presents-sub"></div></div>
+      <div class="metric"><div class="label">Absences</div><div class="value" id="m-absences" style="color:#dc2626">—</div><div class="sub">CP + HRC + SS</div></div>
+      <div class="metric"><div class="label">Heures sup du jour</div><div class="value" id="m-hplus" style="color:#6d28d9">—</div><div class="sub">cumulées</div></div>
+      <div class="metric"><div class="label">Heures manquantes</div><div class="value" id="m-hmoins" style="color:#dc2626">—</div><div class="sub">cumulées</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pointages du jour <span id="today-date-title" style="font-weight:400;color:#888;font-size:12px"></span></div>
+      <div id="today-content"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- ALERTES -->
+  <div id="alertes" class="section">
+    <div class="card">
+      <div class="card-title">Alertes du mois</div>
+      <div id="alertes-content"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- RECAP -->
+  <div id="recap" class="section">
+    <div class="card">
+      <div class="card-title">
+        Récapitulatif mensuel
+        <span id="recap-mois-titre" style="font-weight:400;color:#888;font-size:12px"></span>
+      </div>
+      <div id="recap-content"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div id="historique" class="section">
+    <div class="card">
+      <div class="card-title">
+        Historique des pointages
+        <div style="display:flex;gap:8px">
+          <select id="filtre-sal" onchange="filtrerHistorique()" style="font-size:12px;padding:4px 8px;border:1px solid #e0e0e0;border-radius:6px">
+            <option value="">Tous les salariés</option>
+          </select>
+          <select id="filtre-type" onchange="filtrerHistorique()" style="font-size:12px;padding:4px 8px;border:1px solid #e0e0e0;border-radius:6px">
+            <option value="">Tous les types</option>
+            <option value="normal">Normal</option>
+            <option value="CP">CP</option>
+            <option value="HRC">HRC</option>
+            <option value="SS">Sans solde</option>
+          </select>
+        </div>
+      </div>
+      <div id="historique-content"><div class="loading">Chargement...</div></div>
+    </div>
+  </div>
+
+  <!-- SAISIE MANUELLE -->
+  <div id="saisie" class="section">
+    <div class="card">
+      <div class="card-title">Ajouter un pointage manuellement</div>
+      <div class="saisie-form">
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="s-date"/>
+        </div>
+        <div class="form-field">
+          <label>Salarié</label>
+          <select id="s-sal"><option value="">Sélectionner...</option></select>
+        </div>
+        <div class="form-field">
+          <label>Type</label>
+          <select id="s-type" onchange="toggleSaisieType()">
+            <option value="normal">Journée normale</option>
+            <option value="CP">Congés payés</option>
+            <option value="HRC">HRC</option>
+            <option value="SS">Sans solde</option>
+          </select>
+        </div>
+        <div class="form-field" id="s-cp-field" style="display:none">
+          <label>Durée CP</label>
+          <select id="s-cp">
+            <option value="1">Journée entière (7h)</option>
+            <option value="0.5">Demi-journée (3h30)</option>
+          </select>
+        </div>
+        <div class="form-field" id="s-hrc-field" style="display:none">
+          <label>Heures HRC</label>
+          <input type="number" id="s-hrc" min="0.5" max="35" step="0.5" value="7"/>
+        </div>
+        <div class="form-field" id="s-debut-field">
+          <label>Heure début</label>
+          <select id="s-debut">
+            <option>07:00</option><option>07:30</option><option>08:00</option>
+            <option>08:15</option><option selected>08:30</option><option>09:00</option>
+          </select>
+        </div>
+        <div class="form-field" id="s-fin-field">
+          <label>Heure fin</label>
+          <select id="s-fin">
+            <option>12:30</option><option>14:00</option><option>15:00</option>
+            <option>16:00</option><option selected>16:30</option><option>17:00</option>
+            <option>17:30</option><option>18:00</option>
+          </select>
+        </div>
+        <div class="form-field" id="s-pause-field">
+          <label>Pause</label>
+          <select id="s-pause">
+            <option value="0">Pas de pause</option>
+            <option value="0.5">30 min</option>
+            <option value="1" selected>1 heure</option>
+            <option value="1.5">1h30</option>
+          </select>
+        </div>
+        <div class="form-full">
+          <button class="btn btn-primary" onclick="ajouterPointage()">➕ Ajouter le pointage</button>
+          <span id="s-msg" style="margin-left:12px;font-size:12px"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
+var allData = [];
+var salaries = [];
+
+var jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+var moisNoms = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+var now = new Date();
+document.getElementById("header-date").textContent = jours[now.getDay()]+" "+now.getDate()+" "+moisNoms[now.getMonth()]+" "+now.getFullYear();
+document.getElementById("today-date-title").textContent = now.getDate()+"/"+(now.getMonth()+1)+"/"+now.getFullYear();
+document.getElementById("recap-mois-titre").textContent = moisNoms[now.getMonth()]+" "+now.getFullYear();
+document.getElementById("s-date").value = now.toISOString().split("T")[0];
+
+function hhmm(h) {
+  if(h===""||h===null||isNaN(h)) return "—";
+  var abs = Math.abs(h);
+  var hh = Math.floor(abs);
+  var mm = Math.round((abs-hh)*60);
+  return (h<0?"-":"")+(hh+"h"+(mm<10?"0"+mm:mm));
+}
+
+function chargerDonnees() {
+  fetch(SCRIPT_URL+"?action=getData&_="+new Date().getTime())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      allData = data.slice(1);
+      chargerSalaries();
+    })
+    .catch(function(){
+      document.getElementById("today-content").innerHTML = '<div class="empty">Erreur de chargement — vérifie ta connexion</div>';
+    });
+}
+
+function chargerSalaries() {
+  window.cbSal = function(data) {
+    salaries = data;
+    var sel = document.getElementById("s-sal");
+    var fil = document.getElementById("filtre-sal");
+    sel.innerHTML = '<option value="">Sélectionner...</option>';
+    fil.innerHTML = '<option value="">Tous les salariés</option>';
+    data.forEach(function(s){
+      sel.innerHTML += '<option>'+s+'</option>';
+      fil.innerHTML += '<option>'+s+'</option>';
+    });
+    renderAll();
+  };
+  var sc = document.createElement("script");
+  sc.src = SCRIPT_URL+"?action=getSalaries&callback=cbSal&_="+new Date().getTime();
+  document.body.appendChild(sc);
+}
+
+function renderAll() {
+  renderToday();
+  renderAlertes();
+  renderRecap();
+  renderHistorique();
+}
+
+function getToday() {
+  var d = new Date();
+  return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
+}
+
+function renderToday() {
+  var todayStr = getToday();
+  var pts = allData.filter(function(r){ return r[0] && new Date(r[0]).toLocaleDateString("fr-FR")===todayStr; });
+  var presents = pts.filter(function(r){return r[5]==="normal";}).length;
+  var absences = pts.filter(function(r){return r[5]!=="normal";}).length;
+  var hplus = 0; var hmoins = 0;
+  pts.forEach(function(r){
+    if(r[10]!=="") hplus += parseFloat(r[10])||0;
+    if(r[11]!=="") hmoins += parseFloat(r[11])||0;
+  });
+  document.getElementById("m-presents").textContent = presents;
+  document.getElementById("m-presents-sub").textContent = "sur "+salaries.length+" salariés";
+  document.getElementById("m-absences").textContent = absences;
+  document.getElementById("m-hplus").textContent = hhmm(hplus);
+  document.getElementById("m-hmoins").textContent = hhmm(hmoins);
+  var cont = document.getElementById("today-content");
+  if(!pts.length){cont.innerHTML='<div class="empty">Aucun pointage aujourd\'hui</div>';return;}
+  var html = '<table><thead><tr><th>Salarié</th><th>Début</th><th>Fin</th><th>Pause</th><th>Type</th><th>CP</th><th>HRC</th><th>SS</th><th>H+</th><th>H-</th></tr></thead><tbody>';
+  pts.forEach(function(r){
+    html += '<tr><td><strong>'+r[1]+'</strong></td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+(r[4]?hhmm(parseFloat(r[4])):'—')+'</td>';
+    html += '<td>'+getBadge(r[5])+'</td>';
+    html += '<td>'+(r[6]?'<span class="badge b-cp">'+r[6]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[7]?'<span class="badge b-hrc">'+r[7]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[8]?'<span class="badge b-ss">'+r[8]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[10]?'<span class="badge b-plus">+'+r[10]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[11]?'<span class="badge b-moins">-'+r[11]+'h</span>':'—')+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+}
+
+function getBadge(type) {
+  if(type==="CP") return '<span class="badge b-cp">CP</span>';
+  if(type==="HRC") return '<span class="badge b-hrc">HRC</span>';
+  if(type==="SS") return '<span class="badge b-ss">SS</span>';
+  return '<span class="badge b-normal">Normal</span>';
+}
+
+function renderAlertes() {
+  var mois = now.getMonth();
+  var annee = now.getFullYear();
+  var moisData = allData.filter(function(r){
+    if(!r[0]) return false;
+    var d = new Date(r[0]);
+    return d.getMonth()===mois && d.getFullYear()===annee;
+  });
+  var alerts = [];
+  var bySal = {};
+  moisData.forEach(function(r){
+    var sal = r[1];
+    if(!bySal[sal]) bySal[sal] = {ss:0,hmoins:0};
+    if(r[8]&&parseFloat(r[8])>0) bySal[sal].ss++;
+    if(r[11]&&parseFloat(r[11])>0) bySal[sal].hmoins += parseFloat(r[11]);
+  });
+  Object.keys(bySal).forEach(function(sal){
+    var s = bySal[sal];
+    if(s.ss>=2) alerts.push({type:"err",msg:"<strong>"+sal+"</strong> — "+s.ss+" absence(s) sans solde ce mois"});
+    if(s.hmoins>=3) alerts.push({type:"warn",msg:"<strong>"+sal+"</strong> — "+hhmm(s.hmoins)+" d'heures manquantes ce mois"});
+  });
+  document.getElementById("badge-alertes").textContent = alerts.length?"("+alerts.length+")":"";
+  var cont = document.getElementById("alertes-content");
+  if(!alerts.length){cont.innerHTML='<div class="empty">✅ Aucune alerte ce mois</div>';return;}
+  cont.innerHTML = alerts.map(function(a){
+    return '<div class="alert alert-'+a.type+'"><span>⚠️</span><div>'+a.msg+'</div></div>';
+  }).join("");
+}
+
+function renderRecap() {
+  var mois = now.getMonth();
+  var annee = now.getFullYear();
+  var moisData = allData.filter(function(r){
+    if(!r[0]) return false;
+    var d = new Date(r[0]);
+    return d.getMonth()===mois && d.getFullYear()===annee;
+  });
+  var bySal = {};
+  moisData.forEach(function(r){
+    var sal = r[1];
+    if(!bySal[sal]) bySal[sal] = {hPlus:0,hMoins:0,hrc:0,cp:0,ss:0};
+    if(r[10]!=="") bySal[sal].hPlus += parseFloat(r[10])||0;
+    if(r[11]!=="") bySal[sal].hMoins += parseFloat(r[11])||0;
+    if(r[7]&&parseFloat(r[7])>0) bySal[sal].hrc += parseFloat(r[7]);
+    if(r[6]&&parseFloat(r[6])>0) bySal[sal].cp += parseFloat(r[6]);
+    if(r[8]&&parseFloat(r[8])>0) bySal[sal].ss += parseFloat(r[8]);
+  });
+  var cont = document.getElementById("recap-content");
+  if(!Object.keys(bySal).length){cont.innerHTML='<div class="empty">Aucun pointage ce mois</div>';return;}
+  var html = '<table><thead><tr><th>Salarié</th><th>Heures +</th><th>Heures -</th><th>HRC posé</th><th>CP (h)</th><th>Sans solde (h)</th></tr></thead><tbody>';
+  Object.keys(bySal).sort().forEach(function(sal){
+    var s = bySal[sal];
+    html += '<tr><td><strong>'+sal+'</strong></td>';
+    html += '<td>'+(s.hPlus>0?'<span class="badge b-plus">+'+Math.round(s.hPlus*100)/100+'h</span>':'—')+'</td>';
+    html += '<td>'+(s.hMoins>0?'<span class="badge b-moins">-'+Math.round(s.hMoins*100)/100+'h</span>':'—')+'</td>';
+    html += '<td>'+(s.hrc>0?'<span class="badge b-hrc">'+Math.round(s.hrc*100)/100+'h</span>':'—')+'</td>';
+    html += '<td>'+(s.cp>0?'<span class="badge b-cp">'+Math.round(s.cp*100)/100+'h</span>':'—')+'</td>';
+    html += '<td>'+(s.ss>0?'<span class="badge b-ss">'+Math.round(s.ss*100)/100+'h</span>':'—')+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+}
+
+function renderHistorique() {
+  filtrerHistorique();
+}
+
+function filtrerHistorique() {
+  var salFil = document.getElementById("filtre-sal").value;
+  var typeFil = document.getElementById("filtre-type").value;
+  var data = allData.filter(function(r){
+    if(salFil && r[1]!==salFil) return false;
+    if(typeFil && r[5]!==typeFil) return false;
+    return true;
+  }).slice(-50).reverse();
+  var cont = document.getElementById("historique-content");
+  if(!data.length){cont.innerHTML='<div class="empty">Aucun pointage trouvé</div>';return;}
+  var html = '<table><thead><tr><th>Date</th><th>Salarié</th><th>Début</th><th>Fin</th><th>Type</th><th>CP</th><th>HRC</th><th>SS</th><th>H+</th><th>H-</th></tr></thead><tbody>';
+  data.forEach(function(r){
+    var dateStr = r[0] ? new Date(r[0]).toLocaleDateString("fr-FR") : "—";
+    html += '<tr><td>'+dateStr+'</td><td><strong>'+r[1]+'</strong></td><td>'+r[2]+'</td><td>'+r[3]+'</td>';
+    html += '<td>'+getBadge(r[5])+'</td>';
+    html += '<td>'+(r[6]?'<span class="badge b-cp">'+r[6]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[7]?'<span class="badge b-hrc">'+r[7]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[8]?'<span class="badge b-ss">'+r[8]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[10]?'<span class="badge b-plus">+'+r[10]+'h</span>':'—')+'</td>';
+    html += '<td>'+(r[11]?'<span class="badge b-moins">-'+r[11]+'h</span>':'—')+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+}
+
+function toggleSaisieType() {
+  var type = document.getElementById("s-type").value;
+  document.getElementById("s-cp-field").style.display = type==="CP"?"flex":"none";
+  document.getElementById("s-hrc-field").style.display = type==="HRC"?"flex":"none";
+  document.getElementById("s-debut-field").style.display = type==="normal"?"flex":"none";
+  document.getElementById("s-fin-field").style.display = type==="normal"?"flex":"none";
+  document.getElementById("s-pause-field").style.display = type==="normal"?"flex":"none";
+}
+
+function ajouterPointage() {
+  var date = document.getElementById("s-date").value;
+  var sal = document.getElementById("s-sal").value;
+  var type = document.getElementById("s-type").value;
+  if(!date||!sal){document.getElementById("s-msg").innerHTML='<span style="color:#dc2626">Remplis tous les champs</span>';return;}
+  var d = date.split("-");
+  var dateStr = d[2]+"/"+d[1]+"/"+d[0];
+  var params = "date="+encodeURIComponent(dateStr)+"&salarie="+encodeURIComponent(sal)+"&type="+encodeURIComponent(type);
+  if(type==="normal"){
+    params += "&debut="+encodeURIComponent(document.getElementById("s-debut").value);
+    params += "&fin="+encodeURIComponent(document.getElementById("s-fin").value);
+    params += "&pause="+encodeURIComponent(document.getElementById("s-pause").value);
+    params += "&cp=&hrc=&ss=";
+  } else if(type==="CP"){
+    params += "&debut=&fin=&pause=&cp="+document.getElementById("s-cp").value+"&hrc=&ss=";
+  } else if(type==="HRC"){
+    params += "&debut=&fin=&pause=&cp=&hrc="+document.getElementById("s-hrc").value+"&ss=";
+  } else {
+    params += "&debut=&fin=&pause=&cp=&hrc=&ss=1";
+  }
+  var img = new Image();
+  img.onload = img.onerror = function(){
+    document.getElementById("s-msg").innerHTML='<span style="color:#16a34a">✅ Pointage ajouté !</span>';
+    setTimeout(function(){chargerDonnees();},1500);
+  };
+  img.src = SCRIPT_URL+"?"+params;
+}
+
+function showTab(id,el) {
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.querySelectorAll(".section").forEach(function(s){s.classList.remove("active");});
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+}
+
+chargerDonnees();
+</script>
+</body>
+</html>
