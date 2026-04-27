@@ -13,36 +13,31 @@ h1{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:.25rem;text-align:
 .field{margin-bottom:1rem}
 label{display:block;font-size:13px;font-weight:600;color:#444;margin-bottom:.4rem}
 select,input{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:white;color:#1a1a2e}
-select:focus,input:focus{outline:none;border-color:#6366f1}
 .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
-.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center}
+.type-btn{padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#555;text-align:center;user-select:none}
 .type-btn.active{border-color:#6366f1;background:#eef2ff;color:#4338ca}
-.type-btn.cp.active{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
-.type-btn.hrc.active{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
-.type-btn.ss.active{border-color:#ef4444;background:#fef2f2;color:#dc2626}
+.type-btn.active-cp{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
+.type-btn.active-hrc{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}
+.type-btn.active-ss{border-color:#ef4444;background:#fef2f2;color:#dc2626}
 .hrc-row{display:flex;align-items:center;gap:8px}
 .hrc-row input{flex:1}
-.hrc-row span{font-size:14px;color:#666;white-space:nowrap}
 .btn-submit{width:100%;padding:14px;background:#6366f1;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:.5rem}
 .btn-submit:hover{background:#4f46e5}
-.btn-submit:disabled{background:#c7c7c7;cursor:not-allowed}
-.success{display:none;text-align:center;padding:2rem}
-.success .icon{font-size:60px;margin-bottom:1rem}
-.success h2{font-size:20px;font-weight:700;color:#16a34a;margin-bottom:.5rem}
-.success p{font-size:14px;color:#666}
 .hidden{display:none}
 .date-info{background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 14px;font-size:13px;color:#4338ca;margin-bottom:1rem;text-align:center;font-weight:600}
-.loading{display:none;text-align:center;padding:2rem}
 .spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top:4px solid #6366f1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
 @keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center;padding:2rem}
 </style>
 </head>
 <body>
 <div class="card">
+
   <div id="form-view">
     <h1>Pointage des heures</h1>
     <p class="subtitle">Remplis le formulaire ci-dessous</p>
     <div class="date-info" id="date-display"></div>
+
     <div class="field">
       <label>Ton nom</label>
       <select id="nom">
@@ -61,15 +56,17 @@ select:focus,input:focus{outline:none;border-color:#6366f1}
         <option>LEROY Marc</option>
       </select>
     </div>
+
     <div class="field">
       <label>Type de journée</label>
-      <div class="type-grid">
-        <div class="type-btn active" onclick="setType('normal',this)">Journée normale</div>
-        <div class="type-btn cp" onclick="setType('CP',this)">Congés payés</div>
-        <div class="type-btn hrc" onclick="setType('HRC',this)">Poser HRC</div>
-        <div class="type-btn ss" onclick="setType('SS',this)">Absence</div>
+      <div class="type-grid" id="type-grid">
+        <div class="type-btn active" id="btn-normal">Journée normale</div>
+        <div class="type-btn" id="btn-cp">Congés payés</div>
+        <div class="type-btn" id="btn-hrc">Poser HRC</div>
+        <div class="type-btn" id="btn-ss">Absence</div>
       </div>
     </div>
+
     <div id="heures-section">
       <div class="field">
         <label>Heure de début</label>
@@ -99,12 +96,17 @@ select:focus,input:focus{outline:none;border-color:#6366f1}
         </select>
       </div>
     </div>
+
     <div id="cp-section" class="hidden">
-      <div class="type-grid" style="margin-bottom:0">
-        <div class="type-btn cp active" onclick="setCPType('1',this)">Journée entière</div>
-        <div class="type-btn cp" onclick="setCPType('0.5',this)">Demi-journée</div>
+      <div class="field">
+        <label>Durée</label>
+        <div class="type-grid">
+          <div class="type-btn active-cp active" id="btn-cp-full">Journée entière</div>
+          <div class="type-btn" id="btn-cp-half">Demi-journée</div>
+        </div>
       </div>
     </div>
+
     <div id="hrc-section" class="hidden">
       <div class="field">
         <label>Nombre d'heures HRC à poser</label>
@@ -114,50 +116,119 @@ select:focus,input:focus{outline:none;border-color:#6366f1}
         </div>
       </div>
     </div>
-    <button class="btn-submit" id="btn-envoyer" onclick="envoyer()">Valider mon pointage</button>
+
+    <button class="btn-submit" id="btn-envoyer">Valider mon pointage</button>
   </div>
 
-  <div class="loading" id="loading-view">
+  <div id="loading-view" class="hidden center">
     <div class="spinner"></div>
     <p style="color:#666;font-size:14px">Envoi en cours...</p>
   </div>
 
-  <div class="success" id="success-view">
-    <div class="icon">✅</div>
-    <h2>Pointage enregistré !</h2>
-    <p id="success-msg"></p>
+  <div id="success-view" class="hidden center">
+    <div style="font-size:60px;margin-bottom:1rem">✅</div>
+    <h2 style="color:#16a34a;margin-bottom:.5rem">Pointage enregistré !</h2>
+    <p id="success-msg" style="font-size:13px;color:#666"></p>
     <br>
-    <button class="btn-submit" onclick="resetForm()" style="background:#16a34a">Nouveau pointage</button>
+    <button class="btn-submit" id="btn-nouveau" style="background:#16a34a">Nouveau pointage</button>
   </div>
 
-  <div class="success" id="error-view" style="display:none">
-    <div class="icon">❌</div>
-    <h2 style="color:#dc2626">Erreur d'envoi</h2>
-    <p>Vérifie ta connexion et réessaie.</p>
+  <div id="error-view" class="hidden center">
+    <div style="font-size:60px;margin-bottom:1rem">❌</div>
+    <h2 style="color:#dc2626;margin-bottom:.5rem">Erreur d'envoi</h2>
+    <p style="font-size:13px;color:#666">Vérifie ta connexion et réessaie.</p>
     <br>
-    <button class="btn-submit" onclick="resetForm()" style="background:#dc2626">Réessayer</button>
+    <button class="btn-submit" id="btn-retry" style="background:#dc2626">Réessayer</button>
   </div>
+
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
-let typeActuel='normal';
-let cpType='1';
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
+var typeActuel = "normal";
+var cpType = "1";
 
-const jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-const mois=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-const d=new Date();
-document.getElementById('date-display').textContent=jours[d.getDay()]+' '+d.getDate()+' '+mois[d.getMonth()]+' '+d.getFullYear();
+var jours = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+var mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+var d = new Date();
+document.getElementById("date-display").textContent = jours[d.getDay()] + " " + d.getDate() + " " + mois[d.getMonth()] + " " + d.getFullYear();
 
-function setType(type,el){
-  typeActuel=type;
-  document.querySelectorAll('.type-grid:first-of-type .type-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('heures-section').classList.toggle('hidden',type!=='normal');
-  document.getElementById('cp-section').classList.toggle('hidden',type!=='CP');
-  document.getElementById('hrc-section').classList.toggle('hidden',type!=='HRC');
+function showView(id) {
+  var views = ["form-view","loading-view","success-view","error-view"];
+  for (var i = 0; i < views.length; i++) {
+    document.getElementById(views[i]).style.display = views[i] === id ? "block" : "none";
+  }
 }
-function setCPType(val,el){
-  cpType=val;
-  document.querySelectorAll('#cp-section .type-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+showView("form-view");
+
+function setType(type) {
+  typeActuel = type;
+  document.getElementById("btn-normal").className = "type-btn" + (type === "normal" ? " active" : "");
+  document.getElementById("btn-cp").className = "type-btn" + (type === "CP" ? " active-cp active" : "");
+  document.getElementById("btn-hrc").className = "type-btn" + (type === "HRC" ? " active-hrc active" : "");
+  document.getElementById("btn-ss").className = "type-btn" + (type === "SS" ? " active-ss active" : "");
+  document.getElementById("heures-section").style.display = type === "normal" ? "block" : "none";
+  document.getElementById("cp-section").style.display = type === "CP" ? "block" : "none";
+  document.getElementById("hrc-section").style.display = type === "HRC" ? "block" : "none";
+}
+
+function setCPType(val) {
+  cpType = val;
+  document.getElementById("btn-cp-full").className = "type-btn" + (val === "1" ? " active-cp active" : "");
+  document.getElementById("btn-cp-half").className = "type-btn" + (val === "0.5" ? " active-cp active" : "");
+}
+
+document.getElementById("btn-normal").onclick = function() { setType("normal"); };
+document.getElementById("btn-cp").onclick = function() { setType("CP"); };
+document.getElementById("btn-hrc").onclick = function() { setType("HRC"); };
+document.getElementById("btn-ss").onclick = function() { setType("SS"); };
+document.getElementById("btn-cp-full").onclick = function() { setCPType("1"); };
+document.getElementById("btn-cp-half").onclick = function() { setCPType("0.5"); };
+
+document.getElementById("btn-envoyer").onclick = function() {
+  var nom = document.getElementById("nom").value;
+  if (!nom) { alert("Sélectionne ton nom !"); return; }
+  if (typeActuel === "normal") {
+    var debut = document.getElementById("debut").value;
+    var fin = document.getElementById("fin").value;
+    if (!debut || !fin) { alert("Remplis les heures de début et de fin !"); return; }
+  }
+  var now = new Date();
+  var dateStr = ("0"+now.getDate()).slice(-2) + "/" + ("0"+(now.getMonth()+1)).slice(-2) + "/" + now.getFullYear();
+  var payload = { date: dateStr, salarie: nom, debut: "", fin: "", pause: "", type: typeActuel, cp: "", hrc: "", ss: "" };
+  if (typeActuel === "normal") {
+    payload.debut = document.getElementById("debut").value;
+    payload.fin = document.getElementById("fin").value;
+    payload.pause = document.getElementById("pause").value;
+  } else if (typeActuel === "CP") {
+    payload.cp = cpType;
+  } else if (typeActuel === "HRC") {
+    payload.hrc = document.getElementById("hrc-val").value;
+  } else if (typeActuel === "SS") {
+    payload.ss = "1";
+  }
+  showView("loading-view");
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById("success-msg").textContent = nom + " — " + dateStr + " — " + typeActuel;
+    showView("success-view");
+  }).catch(function() {
+    showView("error-view");
+  });
+};
+
+document.getElementById("btn-nouveau").onclick = function() {
+  document.getElementById("nom").value = "";
+  setType("normal");
+  showView("form-view");
+};
+document.getElementById("btn-retry").onclick = function() {
+  showView("form-view");
+};
+</script>
+</body>
+</html>
