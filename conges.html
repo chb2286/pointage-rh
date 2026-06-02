@@ -7,7 +7,6 @@
 <title>Demande de congés — Clic Logistic</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
-
   :root {
     --bg: #f5f3ef;
     --card: #ffffff;
@@ -19,221 +18,38 @@
     --success: #2d7d4f;
     --radius: 16px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px 48px;
-  }
-
-  header {
-    width: 100%;
-    max-width: 480px;
-    margin-bottom: 28px;
-    text-align: center;
-  }
-
-  .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--primary);
-    letter-spacing: -0.5px;
-  }
-
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; }
+  header { width: 100%; max-width: 480px; margin-bottom: 28px; text-align: center; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--primary); letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
-
-  .subtitle {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-    font-weight: 300;
-  }
-
-  .card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 2px 24px rgba(0,0,0,0.07);
-  }
-
-  .card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--primary);
-    margin-bottom: 24px;
-  }
-
+  .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 300; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 28px 24px; width: 100%; max-width: 480px; box-shadow: 0 2px 24px rgba(0,0,0,0.07); }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--primary); margin-bottom: 24px; }
   .field { margin-bottom: 18px; }
-
-  label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 7px;
-  }
-
-  select, input, textarea, option {
-    color: #1c1c1c !important;
-    width: 100%;
-    padding: 13px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    background: #fafaf8;
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none; -webkit-appearance: none;
-  }
-
-  select:focus, input:focus, textarea:focus {
-    border-color: var(--primary);
-    background: #fff;
-  }
-
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
+  select, input, textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; color: #1c1c1c; background: white; outline: none; transition: border-color 0.2s; }
+  select:focus, input:focus, textarea:focus { border-color: var(--primary); }
   .select-wrap { position: relative; }
-  .select-wrap::after {
-    content: "▾";
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    pointer-events: none;
-    font-size: 14px;
-  }
-
-  .date-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  textarea {
-    resize: none;
-    min-height: 90px;
-    line-height: 1.5;
-  }
-
-  .type-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .type-btn {
-    padding: 12px 8px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    background: #fafaf8;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.18s;
-  }
-
-  .type-btn:hover { border-color: var(--primary); }
-
-  .type-btn.selected {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: #fff;
-  }
-
+  .select-wrap::after { content: "▾"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 14px; }
+  .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  textarea { resize: none; min-height: 90px; line-height: 1.5; }
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .type-btn { padding: 12px 8px; border: 1.5px solid var(--border); border-radius: 10px; background: white; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; text-align: center; transition: all 0.18s; }
+  .type-btn.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
   .type-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
-
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 8px;
-    letter-spacing: 0.2px;
-    transition: background 0.2s, transform 0.1s;
-  }
-
+  .btn-submit { width: 100%; padding: 16px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
   .btn-submit:hover { background: #d04e1a; }
-  .btn-submit:active { transform: scale(0.98); }
   .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-
-  /* Views */
   #view-success { display: none; }
   #view-error { display: none; }
-
-  .success-icon {
-    width: 64px; height: 64px;
-    background: var(--success);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    margin: 0 auto 20px;
-  }
-
-  .success-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--primary);
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .success-msg {
-    font-size: 14px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.6;
-  }
-
-  .tag {
-    display: inline-block;
-    background: #eef3f8;
-    color: var(--primary);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 14px;
-  }
-
-  .loading-spinner {
-    display: inline-block;
-    width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
+  .success-icon { width: 64px; height: 64px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
+  .success-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--primary); text-align: center; margin-bottom: 10px; }
+  .success-msg { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.6; }
+  .tag { display: inline-block; background: #eef3f8; color: var(--primary); border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 500; margin-top: 14px; }
+  .loading-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 20px 0;
-  }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
 </style>
 </head>
 <body>
@@ -243,7 +59,6 @@
   <div class="subtitle">Espace salarié — Demandes d'absences</div>
 </header>
 
-<!-- FORMULAIRE -->
 <div class="card" id="view-form">
   <div class="card-title">Nouvelle demande</div>
 
@@ -259,30 +74,18 @@
   <div class="field">
     <label>Type de demande</label>
     <div class="type-grid">
-      <button class="type-btn selected" data-type="CP" onclick="selectType(this)">
-        <span class="icon">🏖️</span>Congés payés
-      </button>
-      <button class="type-btn" data-type="HRC" onclick="selectType(this)">
-        <span class="icon">⏱️</span>HRC
-      </button>
-      <button class="type-btn" data-type="Maladie" onclick="selectType(this)">
-        <span class="icon">🏥</span>Maladie
-      </button>
-      <button class="type-btn" data-type="Sans solde" onclick="selectType(this)">
-        <span class="icon">📋</span>Sans solde
-      </button>
+      <button class="type-btn selected" data-type="CP" onclick="selectType(this)"><span class="icon">🏖️</span>Congés payés</button>
+      <button class="type-btn" data-type="HRC" onclick="selectType(this)"><span class="icon">⏱️</span>HRC</button>
+      <button class="type-btn" data-type="Maladie" onclick="selectType(this)"><span class="icon">🏥</span>Maladie</button>
+      <button class="type-btn" data-type="Sans solde" onclick="selectType(this)"><span class="icon">📋</span>Sans solde</button>
     </div>
   </div>
 
   <div class="field">
     <label>Période</label>
     <div class="date-row">
-      <div>
-        <input type="date" id="date-debut" placeholder="Du">
-      </div>
-      <div>
-        <input type="date" id="date-fin" placeholder="Au">
-      </div>
+      <input type="date" id="date-debut">
+      <input type="date" id="date-fin">
     </div>
   </div>
 
@@ -303,26 +106,18 @@
   </div>
 
   <div class="divider"></div>
-
   <button class="btn-submit" id="btn-envoyer" onclick="envoyer()">Envoyer la demande</button>
 </div>
 
-<!-- SUCCÈS -->
 <div class="card" id="view-success">
   <div class="success-icon">✓</div>
   <div class="success-title">Demande envoyée !</div>
-  <div class="success-msg">
-    Votre demande a bien été transmise.<br>
-    Vous recevrez une réponse par mail dès validation.
-  </div>
-  <div style="text-align:center">
-    <span class="tag" id="recap-tag"></span>
-  </div>
+  <div class="success-msg">Votre demande a bien été transmise.<br>Vous recevrez une réponse par mail dès validation.</div>
+  <div style="text-align:center"><span class="tag" id="recap-tag"></span></div>
   <div class="divider"></div>
-  <button class="btn-submit" onclick="reset()" style="background:var(--primary)">Nouvelle demande</button>
+  <button class="btn-submit" onclick="resetForm()" style="background:var(--primary)">Nouvelle demande</button>
 </div>
 
-<!-- ERREUR -->
 <div class="card" id="view-error">
   <div style="text-align:center; font-size:40px; margin-bottom:16px">⚠️</div>
   <div class="success-title" style="color:#c0392b">Erreur d'envoi</div>
@@ -332,18 +127,32 @@
 </div>
 
 <script>
-  // ⚠️ REMPLACE PAR TON URL APPS SCRIPT
   var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
-
   var typeSelectionne = "CP";
 
+  // Chargement JSONP — même méthode que le pointage des heures
+  function chargerSalaries() {
+    window.callbackSalariesConges = function(data) {
+      var sel = document.getElementById("nom");
+      sel.innerHTML = '<option value="">-- Sélectionnez votre nom --</option>';
+      for (var i = 0; i < data.length; i++) {
+        var opt = document.createElement("option");
+        opt.value = data[i].nom || data[i];
+        opt.textContent = data[i].nom || data[i];
+        sel.appendChild(opt);
+      }
+    };
+    var script = document.createElement("script");
+    script.src = SCRIPT_URL + "?action=getSalaries&callback=callbackSalariesConges&_=" + new Date().getTime();
+    document.body.appendChild(script);
+  }
+  chargerSalaries();
+
   function selectType(btn) {
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); });
     btn.classList.add('selected');
     typeSelectionne = btn.dataset.type;
-    // Afficher demi-journée pour CP et HRC
-    document.getElementById('field-demi').style.display =
-      (typeSelectionne === 'CP' || typeSelectionne === 'HRC') ? 'block' : 'none';
+    document.getElementById('field-demi').style.display = (typeSelectionne === 'CP' || typeSelectionne === 'HRC') ? 'block' : 'none';
   }
 
   function showView(v) {
@@ -352,34 +161,14 @@
     document.getElementById('view-error').style.display = v === 'error' ? 'block' : 'none';
   }
 
-  function reset() {
+  function resetForm() {
     document.getElementById('motif').value = '';
     document.getElementById('date-debut').value = '';
     document.getElementById('date-fin').value = '';
     document.getElementById('demi-journee').value = '';
     selectType(document.querySelector('[data-type="CP"]'));
+    chargerSalaries();
     showView('form');
-  }
-
-  // Charger la liste des salariés depuis Google Sheets
-  function chargerSalaries() {
-    fetch(SCRIPT_URL + "?action=getSalaries")
-      .then(r => r.json())
-      .then(data => {
-        var sel = document.getElementById('nom');
-        sel.innerHTML = '<option value="">-- Sélectionnez votre nom --</option>';
-        data.forEach(function(s) {
-          var opt = document.createElement('option');
-          opt.value = s.nom;
-          opt.textContent = s.nom;
-          opt.style.color = "#1c1c1c";
-          opt.style.background = "#ffffff";
-          sel.appendChild(opt);
-        });
-      })
-      .catch(function() {
-        document.getElementById('nom').innerHTML = '<option value="">Erreur de chargement</option>';
-      });
   }
 
   function envoyer() {
@@ -398,30 +187,30 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="loading-spinner"></span>Envoi en cours...';
 
+    window.callbackEnvoiConge = function(data) {
+      btn.disabled = false;
+      btn.innerHTML = 'Envoyer la demande';
+      if (data && data.status === 'ok') {
+        document.getElementById('recap-tag').textContent = typeSelectionne + ' · ' + formatDate(debut) + ' → ' + formatDate(fin);
+        showView('success');
+      } else {
+        showView('error');
+      }
+    };
+
     var params = "?action=demandeConge"
       + "&nom=" + encodeURIComponent(nom)
       + "&type=" + encodeURIComponent(typeSelectionne)
       + "&debut=" + encodeURIComponent(debut)
       + "&fin=" + encodeURIComponent(fin)
       + "&demi=" + encodeURIComponent(demi)
-      + "&motif=" + encodeURIComponent(motif);
+      + "&motif=" + encodeURIComponent(motif)
+      + "&callback=callbackEnvoiConge"
+      + "&_=" + new Date().getTime();
 
-    fetch(SCRIPT_URL + params)
-      .then(r => r.json())
-      .then(function(data) {
-        if (data.status === 'ok') {
-          document.getElementById('recap-tag').textContent =
-            typeSelectionne + ' · ' + formatDate(debut) + ' → ' + formatDate(fin);
-          showView('success');
-        } else {
-          showView('error');
-        }
-      })
-      .catch(function() { showView('error'); })
-      .finally(function() {
-        btn.disabled = false;
-        btn.innerHTML = 'Envoyer la demande';
-      });
+    var script = document.createElement("script");
+    script.src = SCRIPT_URL + params;
+    document.body.appendChild(script);
   }
 
   function formatDate(d) {
@@ -429,8 +218,6 @@
     var p = d.split('-');
     return p[2] + '/' + p[1] + '/' + p[0];
   }
-
-  chargerSalaries();
 </script>
 </body>
 </html>
