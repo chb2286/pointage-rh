@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -137,8 +138,8 @@ function chargerSalaries() {
     sel.innerHTML = '<option value="">Sélectionne ton nom...</option>';
     for(var i=0; i<data.length; i++){
       var opt = document.createElement("option");
-      opt.value = data[i];
-      opt.textContent = data[i];
+      opt.value = data[i].nom || data[i];
+      opt.textContent = data[i].nom || data[i];
       sel.appendChild(opt);
     }
   };
