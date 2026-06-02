@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager — Congés · Clic Logistic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --bg: #0f1923;
+    --card: #1a2635;
+    --card2: #1f2f42;
+    --primary: #4a9eff;
+    --accent: #e85d26;
+    --text: #e8edf2;
+    --muted: #7a90a4;
+    --border: #2a3d52;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: 0 auto 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .badge-manager {
+    background: var(--primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    border-radius: 10px;
+    padding: 4px;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tab.active {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .section { display: none; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--border);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text);
+  }
+
+  .stat-value.orange { color: var(--warning); }
+  .stat-value.green { color: var(--success); }
+  .stat-value.red { color: var(--danger); }
+
+  /* Filtres */
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* Demandes */
+  .demande-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--warning);
+    transition: border-color 0.2s;
+  }
+
+  .demande-card.validee { border-left-color: var(--success); }
+  .demande-card.refusee { border-left-color: var(--danger); }
+
+  .demande-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .demande-nom {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .demande-meta {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .badge-cp { background: rgba(74,158,255,0.15); color: var(--primary); }
+  .badge-hrc { background: rgba(243,156,18,0.15); color: var(--warning); }
+  .badge-maladie { background: rgba(231,76,60,0.15); color: var(--danger); }
+  .badge-solde { background: rgba(122,144,164,0.15); color: var(--muted); }
+  .badge-attente { background: rgba(243,156,18,0.15); color: var(--warning); }
+  .badge-valide { background: rgba(39,174,96,0.15); color: var(--success); }
+  .badge-refuse { background: rgba(231,76,60,0.15); color: var(--danger); }
+
+  .demande-dates {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .demande-dates strong { color: var(--primary); }
+
+  .demande-motif {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .demande-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn-valider {
+    flex: 1;
+    padding: 11px;
+    background: rgba(39,174,96,0.15);
+    color: var(--success);
+    border: 1.5px solid var(--success);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-valider:hover { background: var(--success); color: #fff; }
+
+  .btn-refuser {
+    flex: 1;
+    padding: 11px;
+    background: rgba(231,76,60,0.1);
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-refuser:hover { background: var(--danger); color: #fff; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  .refresh-btn {
+    background: var(--card2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+
+  .refresh-btn:hover { background: var(--border); }
+
+  .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+  /* Saisie manuelle */
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    border: 1px solid var(--border);
+  }
+
+  .form-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+  }
+
+  select, input, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--card2);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  select:focus, input:focus, textarea:focus { border-color: var(--primary); }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: "▾";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  textarea { resize: none; min-height: 80px; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 6px;
+  }
+
+  .btn-submit:hover { background: #d04e1a; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #27ae60;
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Clic <span>Logistic</span></div>
+  <div style="display:flex; gap:10px; align-items:center">
+    <button class="refresh-btn" onclick="chargerDonnees()">↻ Actualiser</button>
+    <span class="badge-manager">Manager</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('tab-demandes', this)">En attente</button>
+  <button class="tab" onclick="showTab('tab-historique', this)">Historique</button>
+  <button class="tab" onclick="showTab('tab-saisie', this)">Saisie manuelle</button>
+</div>
+
+<!-- EN ATTENTE -->
+<div class="section active" id="tab-demandes">
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">En attente</div>
+      <div class="stat-value orange" id="stat-attente">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Validées (mois)</div>
+      <div class="stat-value green" id="stat-valide">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Refusées (mois)</div>
+      <div class="stat-value red" id="stat-refuse">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total demandes</div>
+      <div class="stat-value" id="stat-total">—</div>
+    </div>
+  </div>
+
+  <div id="liste-attente"><div class="loading">Chargement...</div></div>
+</div>
+
+<!-- HISTORIQUE -->
+<div class="section" id="tab-historique">
+  <div class="filters">
+    <button class="filter-btn active" onclick="filtrer('tous', this)">Toutes</button>
+    <button class="filter-btn" onclick="filtrer('CP', this)">CP</button>
+    <button class="filter-btn" onclick="filtrer('HRC', this)">HRC</button>
+    <button class="filter-btn" onclick="filtrer('Maladie', this)">Maladie</button>
+    <button class="filter-btn" onclick="filtrer('Sans solde', this)">Sans solde</button>
+  </div>
+  <div id="liste-historique"><div class="loading">Chargement...</div></div>
+</div>
+
+<!-- SAISIE MANUELLE -->
+<div class="section" id="tab-saisie">
+  <div class="form-card">
+    <div class="form-title">Saisie manuelle</div>
+
+    <div class="field">
+      <label>Salarié</label>
+      <div class="select-wrap">
+        <select id="m-nom"><option value="">Chargement...</option></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Type</label>
+      <div class="select-wrap">
+        <select id="m-type">
+          <option value="CP">Congés payés</option>
+          <option value="HRC">HRC</option>
+          <option value="Maladie">Maladie</option>
+          <option value="Sans solde">Sans solde</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Période</label>
+      <div class="date-row">
+        <input type="date" id="m-debut">
+        <input type="date" id="m-fin">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Demi-journée</label>
+      <div class="select-wrap">
+        <select id="m-demi">
+          <option value="">Non — journée complète</option>
+          <option value="Matin">Oui — matin</option>
+          <option value="Après-midi">Oui — après-midi</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Motif</label>
+      <textarea id="m-motif" placeholder="Motif optionnel..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Statut</label>
+      <div class="select-wrap">
+        <select id="m-statut">
+          <option value="Validée">Validée</option>
+          <option value="En attente">En attente</option>
+          <option value="Refusée">Refusée</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="saisieManuelle()">Enregistrer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ REMPLACE PAR TON URL APPS SCRIPT
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
+
+  var toutesLesDemandes = [];
+  var filtreActif = 'tous';
+
+  function showTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function showToast(msg, isError) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '') + ' show';
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function chargerDonnees() {
+    fetch(SCRIPT_URL + "?action=getDemandes")
+      .then(r => r.json())
+      .then(function(data) {
+        toutesLesDemandes = data;
+        afficherStats(data);
+        afficherAttente(data);
+        afficherHistorique(data);
+      })
+      .catch(function() {
+        document.getElementById('liste-attente').innerHTML =
+          '<div class="loading">Erreur de chargement. Vérifiez l\'URL du script.</div>';
+      });
+
+    // Charger salariés pour saisie manuelle
+    fetch(SCRIPT_URL + "?action=getSalaries")
+      .then(r => r.json())
+      .then(function(data) {
+        var sel = document.getElementById('m-nom');
+        sel.innerHTML = '<option value="">-- Sélectionnez --</option>';
+        data.forEach(function(s) {
+          var o = document.createElement('option');
+          o.value = s.nom; o.textContent = s.nom;
+          sel.appendChild(o);
+        });
+      });
+  }
+
+  function afficherStats(data) {
+    var now = new Date();
+    var mois = now.getMonth(); var an = now.getFullYear();
+    var attente = data.filter(d => d.statut === 'En attente').length;
+    var valide = data.filter(d => {
+      var dd = new Date(d.horodatage);
+      return d.statut === 'Validée' && dd.getMonth() === mois && dd.getFullYear() === an;
+    }).length;
+    var refuse = data.filter(d => {
+      var dd = new Date(d.horodatage);
+      return d.statut === 'Refusée' && dd.getMonth() === mois && dd.getFullYear() === an;
+    }).length;
+    document.getElementById('stat-attente').textContent = attente;
+    document.getElementById('stat-valide').textContent = valide;
+    document.getElementById('stat-refuse').textContent = refuse;
+    document.getElementById('stat-total').textContent = data.length;
+  }
+
+  function afficherAttente(data) {
+    var attentes = data.filter(d => d.statut === 'En attente');
+    var el = document.getElementById('liste-attente');
+    if (!attentes.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>Aucune demande en attente</p></div>';
+      return;
+    }
+    el.innerHTML = attentes.map(function(d, i) {
+      return renderDemande(d, true);
+    }).join('');
+  }
+
+  function filtrer(type, btn) {
+    filtreActif = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    afficherHistorique(toutesLesDemandes);
+  }
+
+  function afficherHistorique(data) {
+    var filtered = filtreActif === 'tous' ? data : data.filter(d => d.type === filtreActif);
+    var el = document.getElementById('liste-historique');
+    if (!filtered.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Aucune demande</p></div>';
+      return;
+    }
+    el.innerHTML = filtered.slice().reverse().map(function(d) {
+      return renderDemande(d, d.statut === 'En attente');
+    }).join('');
+  }
+
+  function renderDemande(d, showActions) {
+    var typeBadge = {
+      'CP': 'badge-cp', 'HRC': 'badge-hrc',
+      'Maladie': 'badge-maladie', 'Sans solde': 'badge-solde'
+    }[d.type] || 'badge-cp';
+
+    var statutBadge = {
+      'En attente': 'badge-attente',
+      'Validée': 'badge-valide',
+      'Refusée': 'badge-refuse'
+    }[d.statut] || 'badge-attente';
+
+    var statutIcon = {'En attente':'⏳','Validée':'✅','Refusée':'❌'}[d.statut] || '⏳';
+    var cardClass = {'Validée':'validee','Refusée':'refusee'}[d.statut] || '';
+
+    var demi = d.demi ? ' · ' + d.demi : '';
+    var motif = d.motif ? '<div class="demande-motif">"' + d.motif + '"</div>' : '';
+    var horodatage = d.horodatage ? '<br><span style="font-size:11px;color:var(--muted)">Soumis le ' + d.horodatage + '</span>' : '';
+
+    var actions = showActions ? `
+      <div class="demande-actions">
+        <button class="btn-valider" onclick="repondre('${d.id}','Validée','${d.nom}')">✓ Valider</button>
+        <button class="btn-refuser" onclick="repondre('${d.id}','Refusée','${d.nom}')">✗ Refuser</button>
+      </div>` : '';
+
+    return `
+      <div class="demande-card ${cardClass}" id="card-${d.id}">
+        <div class="demande-header">
+          <div>
+            <div class="demande-nom">${d.nom}</div>
+            <div class="demande-meta">${horodatage}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge ${typeBadge}">${d.type}</span>
+            <span class="badge ${statutBadge}">${statutIcon} ${d.statut}</span>
+          </div>
+        </div>
+        <div class="demande-dates">
+          📅 <strong>${formatDate(d.debut)}</strong> → <strong>${formatDate(d.fin)}</strong>${demi}
+        </div>
+        ${motif}
+        ${actions}
+      </div>`;
+  }
+
+  function repondre(id, statut, nom) {
+    var card = document.getElementById('card-' + id);
+    if (card) card.style.opacity = '0.5';
+
+    fetch(SCRIPT_URL + "?action=repondre&id=" + id + "&statut=" + encodeURIComponent(statut))
+      .then(r => r.json())
+      .then(function(data) {
+        if (data.status === 'ok') {
+          showToast(statut === 'Validée' ? '✅ Demande validée — mail envoyé' : '❌ Demande refusée — mail envoyé');
+          chargerDonnees();
+        } else {
+          showToast('Erreur lors de la mise à jour', true);
+          if (card) card.style.opacity = '1';
+        }
+      })
+      .catch(function() {
+        showToast('Erreur réseau', true);
+        if (card) card.style.opacity = '1';
+      });
+  }
+
+  function saisieManuelle() {
+    var nom = document.getElementById('m-nom').value;
+    var type = document.getElementById('m-type').value;
+    var debut = document.getElementById('m-debut').value;
+    var fin = document.getElementById('m-fin').value;
+    var demi = document.getElementById('m-demi').value;
+    var motif = document.getElementById('m-motif').value;
+    var statut = document.getElementById('m-statut').value;
+
+    if (!nom || !debut || !fin) { showToast('Nom et dates obligatoires', true); return; }
+
+    var params = "?action=saisieManuelle"
+      + "&nom=" + encodeURIComponent(nom)
+      + "&type=" + encodeURIComponent(type)
+      + "&debut=" + encodeURIComponent(debut)
+      + "&fin=" + encodeURIComponent(fin)
+      + "&demi=" + encodeURIComponent(demi)
+      + "&motif=" + encodeURIComponent(motif)
+      + "&statut=" + encodeURIComponent(statut);
+
+    fetch(SCRIPT_URL + params)
+      .then(r => r.json())
+      .then(function(data) {
+        if (data.status === 'ok') {
+          showToast('✅ Enregistré !');
+          chargerDonnees();
+        } else {
+          showToast('Erreur', true);
+        }
+      });
+  }
+
+  function formatDate(d) {
+    if (!d) return '?';
+    if (d.includes('/')) return d;
+    var p = d.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return d;
+  }
+
+  chargerDonnees();
+</script>
+</body>
+</html>

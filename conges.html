@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demande de congés — Clic Logistic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --primary: #1a3a5c;
+    --accent: #e85d26;
+    --text: #1c1c1c;
+    --muted: #888;
+    --border: #e0ddd8;
+    --success: #2d7d4f;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--primary);
+    margin-bottom: 24px;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+  }
+
+  select, input, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: #fafaf8;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  select:focus, input:focus, textarea:focus {
+    border-color: var(--primary);
+    background: #fff;
+  }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: "▾";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 14px;
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  textarea {
+    resize: none;
+    min-height: 90px;
+    line-height: 1.5;
+  }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .type-btn {
+    padding: 12px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: #fafaf8;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s;
+  }
+
+  .type-btn:hover { border-color: var(--primary); }
+
+  .type-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  .type-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    letter-spacing: 0.2px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-submit:hover { background: #d04e1a; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* Views */
+  #view-success { display: none; }
+  #view-error { display: none; }
+
+  .success-icon {
+    width: 64px; height: 64px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px;
+  }
+
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .success-msg {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #eef3f8;
+    color: var(--primary);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 14px;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Clic <span>Logistic</span></div>
+  <div class="subtitle">Espace salarié — Demandes d'absences</div>
+</header>
+
+<!-- FORMULAIRE -->
+<div class="card" id="view-form">
+  <div class="card-title">Nouvelle demande</div>
+
+  <div class="field">
+    <label>Votre nom</label>
+    <div class="select-wrap">
+      <select id="nom">
+        <option value="">Chargement...</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Type de demande</label>
+    <div class="type-grid">
+      <button class="type-btn selected" data-type="CP" onclick="selectType(this)">
+        <span class="icon">🏖️</span>Congés payés
+      </button>
+      <button class="type-btn" data-type="HRC" onclick="selectType(this)">
+        <span class="icon">⏱️</span>HRC
+      </button>
+      <button class="type-btn" data-type="Maladie" onclick="selectType(this)">
+        <span class="icon">🏥</span>Maladie
+      </button>
+      <button class="type-btn" data-type="Sans solde" onclick="selectType(this)">
+        <span class="icon">📋</span>Sans solde
+      </button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Période</label>
+    <div class="date-row">
+      <div>
+        <input type="date" id="date-debut" placeholder="Du">
+      </div>
+      <div>
+        <input type="date" id="date-fin" placeholder="Au">
+      </div>
+    </div>
+  </div>
+
+  <div class="field" id="field-demi" style="display:none">
+    <label>Demi-journée ?</label>
+    <div class="select-wrap">
+      <select id="demi-journee">
+        <option value="">Non — journée complète</option>
+        <option value="Matin">Oui — matin</option>
+        <option value="Après-midi">Oui — après-midi</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Motif (optionnel)</label>
+    <textarea id="motif" placeholder="Précisez si nécessaire..."></textarea>
+  </div>
+
+  <div class="divider"></div>
+
+  <button class="btn-submit" id="btn-envoyer" onclick="envoyer()">Envoyer la demande</button>
+</div>
+
+<!-- SUCCÈS -->
+<div class="card" id="view-success">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Demande envoyée !</div>
+  <div class="success-msg">
+    Votre demande a bien été transmise.<br>
+    Vous recevrez une réponse par mail dès validation.
+  </div>
+  <div style="text-align:center">
+    <span class="tag" id="recap-tag"></span>
+  </div>
+  <div class="divider"></div>
+  <button class="btn-submit" onclick="reset()" style="background:var(--primary)">Nouvelle demande</button>
+</div>
+
+<!-- ERREUR -->
+<div class="card" id="view-error">
+  <div style="text-align:center; font-size:40px; margin-bottom:16px">⚠️</div>
+  <div class="success-title" style="color:#c0392b">Erreur d'envoi</div>
+  <div class="success-msg">Une erreur est survenue. Veuillez réessayer.</div>
+  <div class="divider"></div>
+  <button class="btn-submit" onclick="showView('form')" style="background:var(--primary)">Réessayer</button>
+</div>
+
+<script>
+  // ⚠️ REMPLACE PAR TON URL APPS SCRIPT
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfaElNzeREkDRih1HRqz6TR0JHrt7QAMSKAcADG2hV-ormeIcSyDHm124kDW62GcRZ/exec";
+
+  var typeSelectionne = "CP";
+
+  function selectType(btn) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    typeSelectionne = btn.dataset.type;
+    // Afficher demi-journée pour CP et HRC
+    document.getElementById('field-demi').style.display =
+      (typeSelectionne === 'CP' || typeSelectionne === 'HRC') ? 'block' : 'none';
+  }
+
+  function showView(v) {
+    document.getElementById('view-form').style.display = v === 'form' ? 'block' : 'none';
+    document.getElementById('view-success').style.display = v === 'success' ? 'block' : 'none';
+    document.getElementById('view-error').style.display = v === 'error' ? 'block' : 'none';
+  }
+
+  function reset() {
+    document.getElementById('motif').value = '';
+    document.getElementById('date-debut').value = '';
+    document.getElementById('date-fin').value = '';
+    document.getElementById('demi-journee').value = '';
+    selectType(document.querySelector('[data-type="CP"]'));
+    showView('form');
+  }
+
+  // Charger la liste des salariés depuis Google Sheets
+  function chargerSalaries() {
+    fetch(SCRIPT_URL + "?action=getSalaries")
+      .then(r => r.json())
+      .then(data => {
+        var sel = document.getElementById('nom');
+        sel.innerHTML = '<option value="">-- Sélectionnez votre nom --</option>';
+        data.forEach(function(s) {
+          var opt = document.createElement('option');
+          opt.value = s.nom;
+          opt.textContent = s.nom;
+          sel.appendChild(opt);
+        });
+      })
+      .catch(function() {
+        document.getElementById('nom').innerHTML = '<option value="">Erreur de chargement</option>';
+      });
+  }
+
+  function envoyer() {
+    var nom = document.getElementById('nom').value;
+    var debut = document.getElementById('date-debut').value;
+    var fin = document.getElementById('date-fin').value;
+    var demi = document.getElementById('demi-journee').value;
+    var motif = document.getElementById('motif').value;
+
+    if (!nom) { alert('Veuillez sélectionner votre nom.'); return; }
+    if (!debut) { alert('Veuillez indiquer la date de début.'); return; }
+    if (!fin) { alert('Veuillez indiquer la date de fin.'); return; }
+    if (fin < debut) { alert('La date de fin doit être après la date de début.'); return; }
+
+    var btn = document.getElementById('btn-envoyer');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span>Envoi en cours...';
+
+    var params = "?action=demandeConge"
+      + "&nom=" + encodeURIComponent(nom)
+      + "&type=" + encodeURIComponent(typeSelectionne)
+      + "&debut=" + encodeURIComponent(debut)
+      + "&fin=" + encodeURIComponent(fin)
+      + "&demi=" + encodeURIComponent(demi)
+      + "&motif=" + encodeURIComponent(motif);
+
+    fetch(SCRIPT_URL + params)
+      .then(r => r.json())
+      .then(function(data) {
+        if (data.status === 'ok') {
+          document.getElementById('recap-tag').textContent =
+            typeSelectionne + ' · ' + formatDate(debut) + ' → ' + formatDate(fin);
+          showView('success');
+        } else {
+          showView('error');
+        }
+      })
+      .catch(function() { showView('error'); })
+      .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = 'Envoyer la demande';
+      });
+  }
+
+  function formatDate(d) {
+    if (!d) return '';
+    var p = d.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  chargerSalaries();
+</script>
+</body>
+</html>
