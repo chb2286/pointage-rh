@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace salarié — Clic Logistic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --primary: #1a3a5c;
+    --accent: #e85d26;
+    --text: #1c1c1c;
+    --muted: #888;
+    --border: #e0ddd8;
+    --info: #2563eb;
+    --success: #16a34a;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  /* En-tête */
+  .header { text-align: center; }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .tagline {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* Boutons principaux */
+  .menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .btn-menu {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-menu::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .btn-menu:hover { border-color: transparent; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  .btn-menu:active { transform: scale(0.98); }
+
+  .btn-menu.blue:hover { background: #eff6ff; border-color: #93c5fd; }
+  .btn-menu.green:hover { background: #f0fdf4; border-color: #86efac; }
+
+  .btn-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .btn-icon.blue { background: #eff6ff; }
+  .btn-icon.green { background: #f0fdf4; }
+
+  .btn-text { flex: 1; }
+
+  .btn-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .btn-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .btn-arrow {
+    font-size: 20px;
+    color: var(--muted);
+  }
+
+  /* Pied */
+  .footer {
+    text-align: center;
+  }
+
+  .footer p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Animation d'entrée */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .header  { animation: fadeUp 0.4s ease both; }
+  .menu    { animation: fadeUp 0.4s ease 0.1s both; }
+  .footer  { animation: fadeUp 0.4s ease 0.2s both; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">Clic <span>Logistic</span></div>
+    <div class="tagline">Espace salarié</div>
+  </div>
+
+  <div class="menu">
+
+    <a href="index.html" class="btn-menu blue">
+      <div class="btn-icon blue">⏱️</div>
+      <div class="btn-text">
+        <div class="btn-title">Pointer mes heures</div>
+        <div class="btn-sub">Arrivée, départ, pause</div>
+      </div>
+      <div class="btn-arrow">›</div>
+    </a>
+
+    <a href="conges.html" class="btn-menu green">
+      <div class="btn-icon green">🏖️</div>
+      <div class="btn-text">
+        <div class="btn-title">Demander une absence</div>
+        <div class="btn-sub">CP, HRC, maladie…</div>
+      </div>
+      <div class="btn-arrow">›</div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <p>Une question ? Contactez votre responsable.<br>
+    <a href="mailto:chb@clic-logistic.com" style="color: var(--accent); text-decoration: none;">chb@clic-logistic.com</a></p>
+  </div>
+
+</div>
+
+</body>
+</html>
